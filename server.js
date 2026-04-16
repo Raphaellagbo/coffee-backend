@@ -8,10 +8,13 @@ const privateVapidKey = '_0l2gPVXVPTxs1FxTIqj2Q-fCLPLSmeZjcErlPZXYHI';
 webpush.setVapidDetails('mailto:your-email@example.com', publicVapidKey, privateVapidKey);
 
 // 2. SETUP FIREBASE ADMIN
-const serviceAccount = require('./serviceAccountKey.json');
+// Dapat ganito ang path para sa Render Secret Files
+const serviceAccount = require('/etc/secrets/serviceAccountKey.json');
+
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://YUNG-PROJECT-ID-MO-default-rtdb.firebaseio.com" // Kuhanin sa Firebase mo
+    // Siguraduhin na tama ang URL na ito mula sa Firebase Console mo:
+    databaseURL: "https://coffee-dashboard-2a8ce-default-rtdb.firebaseio.com"
 });
 
 const db = admin.database();
