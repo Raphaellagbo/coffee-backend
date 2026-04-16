@@ -11,13 +11,19 @@ webpush.setVapidDetails(
     privateVapidKey
 );
 
-// 2. SETUP FIREBASE ADMIN
-// Dapat ganito ang path para sa Render Secret Files
+/// 2. SETUP FIREBASE ADMIN
 const serviceAccount = require('/etc/secrets/serviceAccountKey.json');
 
+// Fix para sa Private Key galing sa Environment Variable
+const privateKey = process.env.FIREBASE_PRIVATE_KEY
+    ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+    : serviceAccount.private_key;
+
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    // Tiyaking tugma ito sa project_id na "coffee-dashboard-2a8ce"
+    credential: admin.credential.cert({
+        ...serviceAccount,
+        private_key: privateKey
+    }),
     databaseURL: "https://coffee-dashboard-2a8ce-default-rtdb.firebaseio.com"
 });
 
