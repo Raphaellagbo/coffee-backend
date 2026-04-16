@@ -1,20 +1,16 @@
 const admin = require('firebase-admin');
 const webpush = require('web-push');
-const express = require('express'); // Para hindi patayin ng Render ang server natin
+const express = require('express');
 
-// 1. SETUP VAPID KEYS (Palitan ng keys mo mula sa Step 1)
+// 1. VAPID KEYS (Gamitin mo yung dating Keys mo)
 const publicVapidKey = 'BKzbzHHpLEicyoSXxcA-sMBxJM795kH9UU_3AahwVNEIkXgCcZv4eHcXtSe1_tVeSWbueV1-UNTP9LWQnvDpVK0';
 const privateVapidKey = '_0l2gPVXVPTxs1FxTIqj2Q-fCLPLSmeZjcErlPZXYHI';
-webpush.setVapidDetails(
-    'mailto:leorenxz.1@gmail.com',
-    publicVapidKey,
-    privateVapidKey
-);
 
-/// 2. SETUP FIREBASE ADMIN
+webpush.setVapidDetails('mailto:leorenxz.1@gmail.com', publicVapidKey, privateVapidKey);
+
+// 2. FIREBASE ADMIN (Basahin mula sa Secret File ng Render)
 const serviceAccount = require('/etc/secrets/serviceAccountKey.json');
 
-// Siguraduhin na walang ibang initializeApp sa buong file
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
@@ -23,39 +19,24 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
-
-// 3. EXPRESS SERVER (Kailangan ito para gumana sa libreng hosting)
 const app = express();
-app.get('/', (req, res) => res.send('Coffee Monitor Backend is Running! ☕'));
-const PORT = process.env.PORT || 3000;
+app.get('/', (req, res) => res.send('Coffee Backend is Online! ☕'));
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 
-// 4. ANG 24/7 MONITORING LOGIC
-let lastAlertSent = 0;
-
+// 3. MONITORING LOGIC
 db.ref('/drying').on('value', async (snapshot) => {
     const data = snapshot.val();
-    if (!data) return;
+    if (!data || data.temp_left < 40) return; // Alert lang pag mainit
 
-    // Kunin muna ang push subscription mula sa database
     const subSnapshot = await db.ref('/settings/pushSubscription').once('value');
     const subscription = subSnapshot.val();
+    if (!subscription) return;
 
-    if (!subscription) return; // Walang naka-register na phone
+    const payload = JSON.stringify({
+        title: "🚨 Coffee Alert!",
+        body: `Temperature: ${data.temp_left}°C. Please check!`,
+    });
 
-    // Example Logic: Kapag sobrang init
-    if (data.temp_left > 40.0) {
-        const now = Date.now();
-        // Mag-send lang every 5 minutes para hindi ma-spam ang phone mo
-        if (now - lastAlertSent > 300000) {
-            const payload = JSON.stringify({
-                title: "🚨 CRITICAL: Kape is Overheating!",
-                body: `Temperature is ${data.temp_left}°C. Check the roaster now!`,
-            });
-
-            webpush.sendNotification(subscription, payload).catch(err => console.error(err));
-            lastAlertSent = now;
-            console.log("Push notification sent!");
-        }
-    }
+    webpush.sendNotification(subscription, payload).catch(err => console.error("Push Error:", err));
 });
