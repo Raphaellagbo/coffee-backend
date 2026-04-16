@@ -5,7 +5,7 @@ const express = require('express'); // Para hindi patayin ng Render ang server n
 // 1. SETUP VAPID KEYS (Palitan ng keys mo mula sa Step 1)
 const publicVapidKey = 'BKzbzHHpLEicyoSXxcA-sMBxJM795kH9UU_3AahwVNEIkXgCcZv4eHcXtSe1_tVeSWbueV1-UNTP9LWQnvDpVK0';
 const privateVapidKey = '_0l2gPVXVPTxs1FxTIqj2Q-fCLPLSmeZjcErlPZXYHI';
-webpush.setVapidDetails('mailto:your-email@example.com', publicVapidKey, privateVapidKey);
+webpush.setVapidDetails('leorenxz.1@gmail.com', publicVapidKey, privateVapidKey);
 
 // 2. SETUP FIREBASE ADMIN
 // Dapat ganito ang path para sa Render Secret Files
