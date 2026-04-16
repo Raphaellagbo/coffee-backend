@@ -17,7 +17,7 @@ const serviceAccount = require('/etc/secrets/serviceAccountKey.json');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    // Siguraduhin na tama ang URL na ito mula sa Firebase Console mo:
+    // Tiyaking tugma ito sa project_id na "coffee-dashboard-2a8ce"
     databaseURL: "https://coffee-dashboard-2a8ce-default-rtdb.firebaseio.com"
 });
 
